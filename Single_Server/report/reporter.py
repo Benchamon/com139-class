@@ -1,6 +1,8 @@
 from analysis.analyzer import *
 from simulation.config import *
 from assets.status import Status
+from tabulate import tabulate
+
 # TODO: Create report of multiple executions
 
 
@@ -23,14 +25,65 @@ def report_all_by_field_obj(my_objs: list, my_field: str, w_filter: bool = False
         print('Stdev %s: %5.3f' % (my_field, get_stdev_obj(my_objs, my_field, w_filter, val)))
         print('Variance %s: %5.3f' % (my_field, get_variance_obj(my_objs, my_field, w_filter, val)))
         # TODO: Calculate the percentage of minimal value
+        alval = get_matching_value_obj(my_objs, my_field, min_time)
+        minimalp= len(alval)/NEW_CUSTOMERS
+        print('Percetage of minimal value: {}%\n'.format(minimalp*100))
+        
         # TODO: Group std dev customers and display the list
     else:
-        print(is_status)
+        #print(is_status)
         values = get_map_values(my_objs, my_field)
-        print(values)
+        
         # TODO: get a histogram count on every status
+        SuccessCount=0
+        UndefinedCount=0
+        WaitCount=0
+        RenegedCount=0
+        for v in values:
+            #print(v)
+            #print(type(v))
+            if (v== Status.SUCCESS):
+                SuccessCount+=1
+            if (v== Status.UNDEFINED):
+                UndefinedCount+=1
+            if (v== Status.WAIT):
+                WaitCount+=1
+            if (v== Status.RENEGED):
+                RenegedCount+=1
+        print('Success count: {}\nUndefined count: {}\nWait count: {}\nReneged count: {}\n'.format(SuccessCount, UndefinedCount, WaitCount, RenegedCount))
+        
+
         # TODO: graph the histogram
-        # TODO: get success rate
+        y = ["Undefined", "Success", "Wait", "Reneged"]
+        x = [UndefinedCount, SuccessCount, WaitCount, RenegedCount]
+        y_axis = np.arange(1,5,1)
+        #addlabels(x,y)
+        plt.title("Histogram")
+        plt.xlabel("Number of occurrences")
+        plt.barh(y_axis, x,align='center')
+        plt.yticks(y_axis, y)
+        plt.show()
+
+        # TODO: get success rate+
+        SuccessRate= SuccessCount*100/len(values)
+        print('Success rate: {}%\n'.format(SuccessRate))
+
+        # Report generator
+        file = open('report.txt','a')
+        file.write('-----------------------------\n')
+        file.write(tabulate([['Number of customers:', NEW_CUSTOMERS], ['Number of cashiers:', CAPACITY]], tablefmt='orgtbl'))
+        file.write('\n\n')
+        
+        file.write('=Report for Status field=\n' )
+        file.write(tabulate([['Success:', SuccessCount], ['Undefined:', UndefinedCount], ['Wait:', WaitCount], ['Reneged:', RenegedCount]],headers=['Status','Count'], tablefmt='orgtbl'))
+        file.write('\n')
+        #file.write('Success count: {}\nUndefined count: {}\nWait count: {}\nReneged count: {}\n'.format(SuccessCount, UndefinedCount, WaitCount, RenegedCount))
+        #print('Success rate: {}%'.format(SuccessRate))
+        file.write('Success rate: {}%\n'.format(SuccessRate))
+        file.write('-----------------------------\n\n')
+        file.close()
+
+        
 
 
 def report_all_by_ts(my_ts: list, my_label: str, total_time: float) -> None:
