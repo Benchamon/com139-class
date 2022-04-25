@@ -13,3 +13,8 @@ Keep in mind that the direction must be given as if the position of the vector w
 
 To declare a rotating vector you need the position and a starting direction(this acts as the power as well). ex; "RV 30,50:2,2"
 All rotating vectors rotate in a clockwise direction.
+
+Examples of the code running:
+
+Video 1:
+
