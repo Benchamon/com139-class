@@ -1,0 +1,16 @@
+-------------First day--------------------------
+After understanding the base code I decided to implement polar coordinates because I knew that they might help to implement diferent type of interactions.
+The first thing I tried to program was the rotating vector but I had problems because I converted the coordinates in just the positive values and not in 360° but I 
+diddn't realized until I started to program the pulsating vector.
+After finishing the pulsating vector (at least in the first cuadrant) I noticed the problem in the polar coodinates and fixed it.
+Then I finished the rotating vector and started working in the file reader.
+-------------Second day-------------------------
+I think my solution to adding elements from a file is a bit confusing but at least it works.
+The solids part was a bit confusing because I didn't knew how to make the fluid "bounce" from the solids so I decided that any fuid that enters the solid area was 
+instantly removed, this created the effect that there was sopmeting blocking the fluid.
+-------------Third day--------------------------
+I had a minor problem with making the solids visible because I was putting the coordenates backwards but I fixed it quickly.
+I made some tests and started recording the simulations and saving the config parameters.
+-------------Fourth day-------------------------
+I finished the videos and the README file.
+Then I uploaded everything to github and added the videos to the README.
