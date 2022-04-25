@@ -1,3 +1,10 @@
+---
+driveId1: 1BABBCKGn34PggsBdyMrSexeXV5VK6Wgu/preview
+driveId2: 1BABBCKGn34PggsBdyMrSexeXV5VK6Wgu/preview
+driveId3: 1BABBCKGn34PggsBdyMrSexeXV5VK6Wgu/preview
+driveId4: 1BABBCKGn34PggsBdyMrSexeXV5VK6Wgu/preview
+driveId5: 1BABBCKGn34PggsBdyMrSexeXV5VK6Wgu/preview
+---
 To run the program you need a file named "config.txt"
 The first line must be a cmap compatible with the colormaps in Matplotlib https://matplotlib.org/3.5.0/tutorials/colors/colormaps.html
 All of the following lines can be used to add densities, vectors or solids.
@@ -17,7 +24,7 @@ All rotating vectors rotate in a clockwise direction.
 Examples of the code running:
 
 Video 1:
-{% include googleDrivePlayer.html id=1BABBCKGn34PggsBdyMrSexeXV5VK6Wgu/preview %}
+{% include googleDrivePlayer.html id=page.driveId1 %}
 
 
 Video 2:
