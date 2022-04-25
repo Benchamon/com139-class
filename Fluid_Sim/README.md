@@ -17,6 +17,8 @@ All rotating vectors rotate in a clockwise direction.
 Examples of the code running:
 
 Video 1:
+
+
 https://user-images.githubusercontent.com/63068119/165022205-81b6046a-ffdf-433e-8ff5-c724c9dc5e9e.mp4
 
 
