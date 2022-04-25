@@ -1,7 +1,6 @@
 """
 Based on the Jos Stam paper https://www.researchgate.net/publication/2560062_Real-Time_Fluid_Dynamics_for_Games
 and the mike ash vulgarization https://mikeash.com/pyblog/fluid-simulation-for-dummies.html
-
 https://github.com/Guilouf/python_realtime_fluidsim
 """
 import numpy as np
@@ -161,18 +160,133 @@ class Fluid:
         return self.rotx, self.roty
 
 
+
+def readconf(inst):
+  c = 0
+  color=""
+  densities=[]
+  velocities=[]
+  pulsatingvel=[]
+  rotatingvel=[]
+  solids=[]
+  
+  with open("config.txt","r") as file:
+    for line in file:
+      line = line.strip()
+      if(c == 0):
+        color = line
+      else:
+        a, b = line.split(" ")
+        if(a=='D'):
+            n,m=b.split(",")
+            na,nb=n.split(":")
+            ma,mb=m.split(":")
+            inst.density[int(na):int(nb),int(ma):int(mb)]+=100
+            densities.append([na,nb,ma,mb])
+        elif(a=='V'):
+            s,d=b.split(":")
+            sa,sb=s.split(",")
+            da,db=d.split(",")
+            inst.velo[int(sa),int(sb)] = [int(da),int(db)]
+            velocities.append([sa,sb,da,db])
+        elif(a=='PV'):
+            s,d=b.split(":")
+            sa,sb=s.split(",")
+            da,db=d.split(",")
+            inst.velo[int(sa),int(sb)] = [int(da),int(db)]
+            pulsatingvel.append([sa,sb,da,db])
+        elif(a=='RV'):
+            s,d=b.split(":")
+            sa,sb=s.split(",")
+            da,db=d.split(",")
+            inst.velo[int(sa),int(sb)] = [int(da),int(db)]
+            rotatingvel.append([sa,sb,da,db])
+        elif(a=='S'):
+            n,m=b.split(",")
+            na,nb=n.split(":")
+            ma,mb=m.split(":")
+            inst.density[int(na):int(nb),int(ma):int(mb)]=0
+            inst.velo[int(na):int(nb),int(ma):int(mb)]=0
+            solids.append([na,nb,ma,mb])
+
+
+      c+=1
+  file.close()
+  return color, densities, velocities, pulsatingvel, rotatingvel, solids
+
+
+def prevDenVel(frame, inst,den_array, vel_array, pvel_array, rvel_array, solids_array):
+    for den in den_array:
+        inst.density[int(den[0]):int(den[1]),int(den[2]):int(den[3])]+=100
+    for vel in vel_array:
+        inst.velo[int(vel[0]),int(vel[1])] = [int(vel[2]),int(vel[3])]
+    for pvel in pvel_array:
+        x=int(pvel[2])
+        y=int(pvel[3])
+        if(x>0 and y>0):
+            a=math.atan(y/x)
+        elif(x==0 and y>0):
+            a=math.pi/2
+        elif(x<0):
+            a=math.atan(y/x)+math.pi
+        elif(x==0 and y<0):
+            a=3*math.pi/2
+        elif(x>0 and y<0):
+            a=math.atan(y/x)+2*math.pi
+        r=math.sqrt(x**2 + y**2)
+        r=r-r*((math.sin(frame)+1)/2)
+        x=r*math.cos(a)
+        y=r*math.sin(a)
+        inst.velo[int(pvel[0]),int(pvel[1])] = [x,y]
+    #Rotating
+    for rvel in rvel_array:
+        x=int(rvel[2])
+        y=int(rvel[3])
+        if(x>0 and y>0):
+            a=math.atan(y/x)
+        elif(x==0 and y>0):
+            a=math.pi/2
+        elif(x<0):
+            a=math.atan(y/x)+math.pi
+        elif(x==0 and y<0):
+            a=3*math.pi/2
+        elif(x>0 and y<0):
+            a=math.atan(y/x)+2*math.pi
+        r=math.sqrt(x**2 + y**2)
+        a+=(frame*0.1)
+        x=r*math.cos(a)
+        y=r*math.sin(a)
+        inst.velo[int(rvel[0]),int(rvel[1])] = [x,y]
+    for sol in solids_array:
+        inst.density[int(sol[0]):int(sol[1]),int(sol[2]):int(sol[3])]=0
+        inst.velo[int(sol[0]):int(sol[1]),int(sol[2]):int(sol[3])]=0
+
+
+def addSolids(fig, solids_array):
+    for sol in solids_array:
+        plt.gca().add_patch(Rectangle((int(sol[2]),int(sol[0])),int(sol[3])-int(sol[2]),int(sol[1])-int(sol[0]),fill=True,color='gray',alpha=0.5,zorder=1000,figure=fig))
+        
+
+
 if __name__ == "__main__":
     try:
         import matplotlib.pyplot as plt
         from matplotlib import animation
+        from matplotlib.patches import Rectangle
 
         inst = Fluid()
 
-        def update_im(i):
+        #Read config.txt
+        col, den_array, vel_array, pvel_array, rvel_array, solids_array= readconf(inst)
+
+        
+
+        def update_im(i, den_array, vel_array, pvel_array, rvel_array, solids_array):
             # We add new density creators in here
-            inst.density[14:17, 14:17] += 100  # add density into a 3*3 square
+            #inst.density[14:17, 14:17] += 100  # add density into a 3*3 square
             # We add velocity vector values in here
-            inst.velo[20, 20] = [-2, -2]
+            #inst.velo[20, 20] = [-2, -2]
+            prevDenVel(i, inst,den_array, vel_array, pvel_array, rvel_array, solids_array)
             inst.step()
             im.set_array(inst.density)
             q.set_UVC(inst.velo[:, :, 1], inst.velo[:, :, 0])
@@ -182,12 +296,13 @@ if __name__ == "__main__":
         fig = plt.figure()
 
         # plot density
-        im = plt.imshow(inst.density, vmax=100, interpolation='bilinear')
-
+        im = plt.imshow(inst.density, vmax=100, interpolation='bilinear', cmap=col)
+        addSolids(fig, solids_array)
         # plot vector field
         q = plt.quiver(inst.velo[:, :, 1], inst.velo[:, :, 0], scale=10, angles='xy')
-        anim = animation.FuncAnimation(fig, update_im, interval=0)
-        # anim.save("movie.mp4", fps=30, extra_args=['-vcodec', 'libx264'])
+        anim = animation.FuncAnimation(fig, update_im, fargs=(den_array,vel_array,pvel_array,rvel_array, solids_array), interval=0, save_count=300)
+        #anim.save("Video5.mp4", fps=30, extra_args=['-vcodec', 'libx264'])
+        
         plt.show()
 
     except ImportError:
